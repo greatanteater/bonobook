@@ -7,7 +7,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Flipbook from 'flipbook-vue';
-import Setting from '../activity/base/Setting';
 import GreatFlip from '../activity/scene/GreatFlip';
 
 export default defineComponent({
@@ -17,11 +16,9 @@ export default defineComponent({
   setup() {
     const greatFlip = new GreatFlip(); // GreatFlip 클래스 인스턴스 생성
     return {
-      greatFlip,
-      sceneWidth: Setting.sceneWidth,
-      sceneHeight: Setting.sceneHeight,
+      greatFlip
     };
-  },
+  }
 });
 </script>
 
