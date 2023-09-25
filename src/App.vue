@@ -1,14 +1,14 @@
 <template>
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <GreatFlip msg="Welcome to Your Vue.js + TypeScript App"/>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import HelloWorld from './components/HelloWorld.vue';
+import GreatFlip from './components/GreatFlip.vue';
 
 @Options({
   components: {
-    HelloWorld,
+    GreatFlip,
   },
 })
 export default class App extends Vue {}
@@ -21,8 +21,12 @@ export default class App extends Vue {}
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  width: 1300px;
+  height: 812px;
 }
 body {
   margin: 0;
+  overflow: hidden;
 }
+
 </style>
