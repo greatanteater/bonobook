@@ -1,50 +1,56 @@
 import axios from "axios";
 
 interface Json {
-    count?: number;
+  pagesCount: number;
 }
 
 export default class GreatFlip {
-    private _jsonData: any = undefined;
-    private pages: string[] = [];
+  private _jsonData: Json | null = null;
+  private pages: string[] = [];
+  private currentPage = 0;
 
-    constructor() {
-        this.initialize();
-    }
+  constructor () {
+    this.currentPage = 1;
+  }
 
-    private async initialize() {
-        await this.getJson();
-        for (let i = 1; i < this._jsonData.count + 1; i++) {
-            console.log("설사: " + i);
-            this.pages.push(`${process.env.BASE_URL}book1/${i}.png`);
+  public async init() {
+    await this.getJson();
+    if (this._jsonData) {
+      for (let i = 1; i < this._jsonData.pagesCount + 1; i++) {
+        if (i == 1) {
+            this.pages.push(''); 
         }
+        const path = `${process.env.BASE_URL}book${this.currentPage}/${i}.png`;
+        this.pages.push(path);
+      }
     }
+  }
 
-    private mutateJsonData(jsonData: Json) {
-        this._jsonData = jsonData;
-    }
+  private mutateJsonData(jsonData: Json) {
+    this._jsonData = jsonData;
+  }
 
-    private async getJson() {
-        const path = `${process.env.BASE_URL}book1/bookdata.json`;
-        await axios.get(path)
-            .then((response) => {
-                this.mutateJsonData(response.data);
-            })
-            .catch((reason) => {
-                console.log(reason);
-            });
-        this.test();
+  private async getJson() {
+    const path = `${process.env.BASE_URL}book${this.currentPage}/bookdata.json`;
+    try {
+      const response = await axios.get(path);
+      this.mutateJsonData(response.data);
+      this.test();
+    } catch (reason) {
+      console.log(reason);
     }
+  }
 
-    private async test() {
-        if (this._jsonData !== undefined) {
-            console.log("개똥설사: " + this._jsonData.count);
-        } else {
-            console.log("JSON 데이터가 없습니다.");
-        }
+  private async test() {
+    if (this._jsonData !== null) {
+      console.log("총 페이지: " + this._jsonData.pagesCount);
+    } else {
+      console.log("JSON 데이터가 없습니다.");
     }
+  }
 
-    private getPages() {
-        return this.pages;
-    }
+  public getPages() {
+    console.log('"이미지 경로 로드 완료"');
+    return this.pages;
+  }
 }

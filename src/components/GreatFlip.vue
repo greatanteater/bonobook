@@ -1,11 +1,11 @@
 <template>
   <div class="great-flip">
-    <Flipbook class="flipbook" :pages="greatFlip.getPages()" :gloss=0 ref="flipbook"></Flipbook>
+    <Flipbook v-if="isGreatFlipLoaded" class="flipbook" :pages="greatFlip.getPages()" :gloss="0"></Flipbook>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import Flipbook from 'flipbook-vue';
 import GreatFlip from '../activity/scene/GreatFlip';
 
@@ -15,10 +15,21 @@ export default defineComponent({
   },
   setup() {
     const greatFlip = new GreatFlip(); // GreatFlip 클래스 인스턴스 생성
+    const isGreatFlipLoaded = ref(false); // GreatFlip 클래스 로드 여부를 나타내는 변수
+
+    // 컴포넌트가 마운트된 후에 GreatFlip 초기화 함수 실행
+    onMounted(() => {
+      // GreatFlip 클래스 초기화 작업이 완료된 후에 isGreatFlipLoaded 값을 true로 변경
+      greatFlip.init().then(() => {
+        isGreatFlipLoaded.value = true;
+      });
+    });
+
     return {
-      greatFlip
+      greatFlip,
+      isGreatFlipLoaded,
     };
-  }
+  },
 });
 </script>
 
