@@ -8,9 +8,11 @@ export default class GreatFlip {
   private _jsonData: Json | null = null;
   private pages: string[] = [];
   private currentPage = 0;
+  public commonPath:string;
 
   constructor () {
     this.currentPage = 1;
+    this.commonPath = `${process.env.BASE_URL}common`;
   }
 
   public async init() {

@@ -25,6 +25,7 @@ export default class App extends Vue {}
   height: 812px;
 }
 body {
+  position: absolute;
   margin: 0;
   overflow: hidden;
 }
