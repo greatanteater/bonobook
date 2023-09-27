@@ -1,14 +1,19 @@
 <template>
   <div class="great-flip">
     <Flipbook v-if="isGreatFlipLoaded" class="flipbook" :pages="greatFlip.getPages()" :flip-duration="flipDuration"
-      :gloss="0" :ambient="1" :clickToZoom="false" v-slot="flipbook" ref="flipbookRef" @mousedown.prevent.stop.capture="flipStart"
-      @mousemove.prevent.stop.capture="flipMove" @mouseup.prevent.stop.capture="flipEnd" @touchstart.prevent.stop.capture="flipStart" @touchmove.prevent.stop.capture="flipMove" @touchend.prevent.stop.capture="flipEnd"
-      @flip-left-start="greatFlip.rustilingSoundPlay()" @flip-right-start="greatFlip.rustilingSoundPlay()" @flip-left-end="updatePage" @flip-right-end="updatePage">
+      :gloss="0" :ambient="1" :clickToZoom="false" v-slot="flipbook" ref="flipbookRef"
+      @mousedown.prevent.stop.capture="flipStart" @mousemove.prevent.stop.capture="flipMove"
+      @mouseup.prevent.stop.capture="flipEnd" @touchstart.prevent.stop.capture="flipStart"
+      @touchmove.prevent.stop.capture="flipMove" @touchend.prevent.stop.capture="flipEnd"
+      @flip-left-start="greatFlip.rustilingSoundPlay()" @flip-right-start="greatFlip.rustilingSoundPlay()"
+      @flip-left-end="updatePage" @flip-right-end="updatePage">
       <button id="left" class="page_button">
-        <img :src="greatFlip.commonPath + '/left.png'" alt="leftButton" @click.prevent.stop.capture="leftButtonClick(flipbook)">
+        <img :src="greatFlip.commonPath + '/left.png'" alt="leftButton"
+          @click.prevent.stop.capture="leftButtonClick(flipbook)">
       </button>
       <button id="right" class="page_button">
-        <img :src="greatFlip.commonPath + '/right.png'" alt="rightButton" @click.prevent.stop.capture="rightButtonClick(flipbook)">
+        <img :src="greatFlip.commonPath + '/right.png'" alt="rightButton"
+          @click.prevent.stop.capture="rightButtonClick(flipbook)">
       </button>
     </Flipbook>
     <button id="quit">
@@ -49,6 +54,7 @@ export default defineComponent({
           timeCheck();
           console.log(`Current image is ${greatNumber.value}`);
           greatFlip.playSound();
+          focus();
         });
       });
     });
@@ -156,7 +162,19 @@ export default defineComponent({
 
     const flipEnd = () => {
       flipping = false;
-        console.log("다 넘김");
+      console.log("다 넘김");
+    }
+
+    const focus = () => {
+      window.addEventListener('blur', () => {
+        console.log("Window lost focus");
+        greatFlip.stopSound();
+      });
+
+      window.addEventListener('focus', () => {
+        console.log("Window gained focus");
+        greatFlip.playSound();
+      });
     }
 
     return {

@@ -5,6 +5,12 @@ interface Json {
   sync: number[];
 }
 
+interface CurrentDate {
+  year: number;
+  month: number;
+  day: number;
+}
+
 export default class GreatFlip {
   private _jsonData: Json | null = null;
   private pages: string[] = [];
@@ -13,10 +19,34 @@ export default class GreatFlip {
   public audio: HTMLAudioElement | null = null;
   private rustlingAudio: HTMLAudioElement | null = null;
   public sync: number[] = [];
+  public currentDate: CurrentDate | null = null;
 
   constructor() {
-    this.bookNumber = 1;
     this.commonPath = `${process.env.BASE_URL}common`;
+    this.setDate();
+  }
+
+  public setDate() {
+    const startDate = new Date(2023, 8, 27);
+    const today = new Date();
+    const msPerDay = 24 * 60 * 60 *1000;
+    const daysSince = Math.floor((today.getTime() - startDate.getTime()) / msPerDay) + 1;
+
+    if (daysSince <= 1) {
+      this.bookNumber = 1;
+    } else {
+      // this.bookNumber = daysSince;
+      this.bookNumber = 1;
+    }
+
+    this.currentDate = {
+      year: today.getFullYear(),
+      month: today.getMonth() + 1,
+      day: today.getDate()
+    }
+    console.log(`오늘 날짜: ${this.currentDate.year}년 ${this.currentDate.month}월 ${this.currentDate.day}일`);
+    console.log(`"경과일: ${daysSince}"`);
+    console.log(`"book ${daysSince}"`);
   }
 
   public async init() {
@@ -91,7 +121,7 @@ export default class GreatFlip {
     }
   }
 
-  private stopSound() {
+  public stopSound() {
     if (this.audio != null) {
       this.audio.pause();
     }
