@@ -7,11 +7,11 @@ interface Json {
 export default class GreatFlip {
   private _jsonData: Json | null = null;
   private pages: string[] = [];
-  private currentPage = 0;
+  private bookNumber = 0;
   public commonPath:string;
 
   constructor () {
-    this.currentPage = 1;
+    this.bookNumber = 1;
     this.commonPath = `${process.env.BASE_URL}common`;
   }
 
@@ -22,7 +22,7 @@ export default class GreatFlip {
         if (i == 1) {
             this.pages.push(''); 
         }
-        const path = `${process.env.BASE_URL}book${this.currentPage}/${i}.png`;
+        const path = `${process.env.BASE_URL}book${this.bookNumber}/${i}.png`;
         this.pages.push(path);
       }
     }
@@ -33,19 +33,19 @@ export default class GreatFlip {
   }
 
   private async getJson() {
-    const path = `${process.env.BASE_URL}book${this.currentPage}/bookdata.json`;
+    const path = `${process.env.BASE_URL}book${this.bookNumber}/bookdata.json`;
     try {
       const response = await axios.get(path);
       this.mutateJsonData(response.data);
-      this.test();
+      this.lastPage();
     } catch (reason) {
       console.log(reason);
     }
   }
 
-  private async test() {
+  private async lastPage() {
     if (this._jsonData !== null) {
-      console.log("총 페이지: " + this._jsonData.pagesCount);
+      console.log("마지막 페이지: " + this._jsonData.pagesCount);
     } else {
       console.log("JSON 데이터가 없습니다.");
     }

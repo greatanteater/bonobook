@@ -1,17 +1,18 @@
 <template>
-  <GreatFlip msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div id="app">
+    <GreatFlip />
+  </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import { defineComponent } from 'vue';
 import GreatFlip from './components/GreatFlip.vue';
 
-@Options({
+export default defineComponent({
   components: {
     GreatFlip,
   },
-})
-export default class App extends Vue {}
+});
 </script>
 
 <style>

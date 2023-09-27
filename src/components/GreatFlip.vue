@@ -1,21 +1,22 @@
 <template>
   <div class="great-flip">
-    <Flipbook v-if="isGreatFlipLoaded" class="flipbook" :pages="greatFlip.getPages()" :gloss="0" @update:page="greatNumber">
+    <Flipbook v-if="isGreatFlipLoaded" class="flipbook" :pages="greatFlip.getPages()" :gloss="0"
+      @flip-left-end="updatePage" @flip-right-end="updatePage" v-slot="flipbook">
+      <button id="left" class="page_button">
+        <img :src="greatFlip.commonPath + '/left.png'" alt="leftButton" @click="handleLeftButtonClick(flipbook)">
+      </button>
+      <button id="right" class="page_button">
+        <img :src="greatFlip.commonPath + '/right.png'" alt="rightButton" @click="handleRightButtonClick(flipbook)">
+      </button>
     </Flipbook>
     <button id="quit">
       <img :src="greatFlip.commonPath + '/quit.png'" alt="quitButton" @click="handleQuitButtonClick">
-    </button>
-    <button id="left">
-      <img :src="greatFlip.commonPath + '/left.png'" alt="leftButton" @click="handleLeftButtonClick">
-    </button>
-    <button id="right">
-      <img :src="greatFlip.commonPath + '/right.png'" alt="rightButton" @click="handleRightButtonClick">
     </button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from 'vue';
+import { defineComponent, ref, onMounted, nextTick } from 'vue';
 import Flipbook from 'flipbook-vue';
 import GreatFlip from '../activity/scene/GreatFlip';
 
@@ -30,28 +31,45 @@ export default defineComponent({
     const greatFlip = new GreatFlip(); // GreatFlip 클래스 인스턴스 생성
     const isGreatFlipLoaded = ref(false); // GreatFlip 클래스 로드 여부를 나타내는 변수
 
-    let greatNumber = 0;
+    const greatNumber = ref(1);
+
+    console.log("시작 페이지: " + greatNumber.value);
 
     // 컴포넌트가 마운트된 후에 GreatFlip 초기화 함수 실행
     onMounted(() => {
       // GreatFlip 클래스 초기화 작업이 완료된 후에 isGreatFlipLoaded 값을 true로 변경
       greatFlip.init().then(() => {
         isGreatFlipLoaded.value = true;
+        nextTick().then(() => { // DOM 업데이트 사이클의 끝에서 실행
+          console.log(`Current image is ${greatNumber.value}`);
+        });
       });
+
     });
 
     const handleQuitButtonClick = () => {
-      console.log('quit 버튼이 클릭되었습니다.:' + greatNumber);
+      console.log('quit 버튼이 클릭되었습니다.');
+      if (typeof window.Unity !== "undefined") {
+        window.Unity.call("eBook");
+      }
+      else if (navigator.userAgent.indexOf("Win") != -1) {
+        window.close();
+      } else {
+        console.log("has no Unity: " + navigator.userAgent.indexOf("Win"));
+      }
     };
 
-    const handleLeftButtonClick = () => {
-      // 이 곳에 left 버튼을 클릭했을 때 실행할 코드를 작성
-      console.log('left 버튼이 클릭되었습니다.');
+    const handleLeftButtonClick = (flipbook: any) => {
+      flipbook.flipLeft();
     };
 
-    const handleRightButtonClick = () => {
-      // 이 곳에 left 버튼을 클릭했을 때 실행할 코드를 작성
-      console.log('right 버튼이 클릭되었습니다.');
+    const handleRightButtonClick = (flipbook: any) => {
+      flipbook.flipRight();
+    };
+
+    const updatePage = (newPage: number) => {
+      greatNumber.value = Math.floor(newPage / 2 + 1);
+      console.log(`Current image is ${greatNumber.value}`);
     };
 
     return {
@@ -60,7 +78,7 @@ export default defineComponent({
       handleQuitButtonClick,
       handleLeftButtonClick,
       handleRightButtonClick,
-      greatNumber
+      updatePage
     };
   },
 });
@@ -82,51 +100,40 @@ export default defineComponent({
   height: 100%;
 }
 
-#quit {
+button {
   margin: 10px;
   padding: 0;
   z-index: 10;
-  width: 72px;
-  height: 76px;
   position: absolute;
   border: none;
   background-color: transparent;
   opacity: 0.5;
+  cursor: pointer;
+}
+
+.page_button {
+  width: 72px;
+  height: 71px;
+  width: 72px;
+  height: 71px;
+  top: 352px;
+}
+
+#quit {
+  width: 72px;
+  height: 76px;
   top: 0;
   bottom: 0;
   right: 0;
-  cursor: pointer;
 }
 
 #left {
-  margin: 10px;
-  padding: 0;
-  z-index: 10;
-  width: 72px;
-  height: 71px;
-  position: absolute;
-  border: none;
-  background-color: transparent;
-  opacity: 0.5;
   left: 0;
-  top: 352px;
   bottom: 0;
-  cursor: pointer;
 }
 
 #right {
-  margin: 10px;
-  padding: 0;
-  z-index: 10;
-  width: 72px;
-  height: 71px;
-  position: absolute;
-  border: none;
-  background-color: transparent;
-  opacity: 0.5;
-  top: 352px;
   bottom: 0;
   right: 0;
-  cursor: pointer;
 }
 </style>
