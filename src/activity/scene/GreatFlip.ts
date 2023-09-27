@@ -57,7 +57,7 @@ export default class GreatFlip {
         if (i == 1) {
           this.pages.push('');
         }
-        const path = `${process.env.BASE_URL}book${this.bookNumber}/${i}.png`;
+        const path = `${process.env.BASE_URL}resource/book${this.bookNumber}/${i}.png`;
         this.pages.push(path);
       }
     }
@@ -70,7 +70,7 @@ export default class GreatFlip {
   }
 
   private async getJson() {
-    const path = `${process.env.BASE_URL}book${this.bookNumber}/bookdata.json`;
+    const path = `${process.env.BASE_URL}resource/book${this.bookNumber}/bookdata.json`;
     try {
       const response = await axios.get(path);
       this.mutateJsonData(response.data);
@@ -89,7 +89,7 @@ export default class GreatFlip {
   }
 
   private setSound() {
-    const path = `${process.env.BASE_URL}book${this.bookNumber}/sound.mp3`;
+    const path = `${process.env.BASE_URL}resource/book${this.bookNumber}/sound.mp3`;
     const rustlingPath = `${process.env.BASE_URL}common/rustling.wav`;
 
     this.audio = new Audio(path);

@@ -154,7 +154,7 @@ export default defineComponent({
       flipping = true;
     }
 
-    const flipMove = () => {
+    const flipMove = (event: any) => {
       if (flipping) {
         console.log("책 넘기는 중");
       }
