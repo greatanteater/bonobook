@@ -5,4 +5,4 @@ createApp(App).mount('#app')
 
 declare global {
     interface Window { Unity: any; }
-  }
+}

@@ -1,39 +1,43 @@
 <template>
   <div class="great-flip">
-    <Flipbook v-if="isGreatFlipLoaded" class="flipbook" :pages="greatFlip.getPages()" :gloss="0"
-      @flip-left-end="updatePage" @flip-right-end="updatePage" v-slot="flipbook">
+    <Flipbook v-if="isGreatFlipLoaded" class="flipbook" :pages="greatFlip.getPages()" :flip-duration="flipDuration"
+      :gloss="0" :ambient="1" :clickToZoom="false" v-slot="flipbook" ref="flipbookRef" @mousedown.prevent.stop.capture="flipStart"
+      @mousemove.prevent.stop.capture="flipMove" @mouseup.prevent.stop.capture="flipEnd" @touchstart.prevent.stop.capture="flipStart" @touchmove.prevent.stop.capture="flipMove" @touchend.prevent.stop.capture="flipEnd"
+      @flip-left-start="greatFlip.rustilingSoundPlay()" @flip-right-start="greatFlip.rustilingSoundPlay()" @flip-left-end="updatePage" @flip-right-end="updatePage">
       <button id="left" class="page_button">
-        <img :src="greatFlip.commonPath + '/left.png'" alt="leftButton" @click="handleLeftButtonClick(flipbook)">
+        <img :src="greatFlip.commonPath + '/left.png'" alt="leftButton" @click.prevent.stop.capture="leftButtonClick(flipbook)">
       </button>
       <button id="right" class="page_button">
-        <img :src="greatFlip.commonPath + '/right.png'" alt="rightButton" @click="handleRightButtonClick(flipbook)">
+        <img :src="greatFlip.commonPath + '/right.png'" alt="rightButton" @click.prevent.stop.capture="rightButtonClick(flipbook)">
       </button>
     </Flipbook>
     <button id="quit">
-      <img :src="greatFlip.commonPath + '/quit.png'" alt="quitButton" @click="handleQuitButtonClick">
+      <img :src="greatFlip.commonPath + '/quit.png'" alt="quitButton" @click.prevent.stop.capture="quitButtonClick">
     </button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, nextTick } from 'vue';
+import { defineComponent, ref, onMounted, onUnmounted, nextTick } from 'vue';
 import Flipbook from 'flipbook-vue';
 import GreatFlip from '../activity/scene/GreatFlip';
 
 export default defineComponent({
-  props: {
-    msg: String, // msg 속성을 정의
-  },
   components: {
     Flipbook,
   },
   setup() {
     const greatFlip = new GreatFlip(); // GreatFlip 클래스 인스턴스 생성
     const isGreatFlipLoaded = ref(false); // GreatFlip 클래스 로드 여부를 나타내는 변수
-
     const greatNumber = ref(1);
+    const currentTime = ref(0);
+    const flipbookRef = ref(null);
+    const flipDuration = 1000;
 
-    console.log("시작 페이지: " + greatNumber.value);
+    let auto = false;
+    let flipping = false;
+
+    console.log("시작 이미지: " + greatNumber.value);
 
     // 컴포넌트가 마운트된 후에 GreatFlip 초기화 함수 실행
     onMounted(() => {
@@ -41,14 +45,19 @@ export default defineComponent({
       greatFlip.init().then(() => {
         isGreatFlipLoaded.value = true;
         nextTick().then(() => { // DOM 업데이트 사이클의 끝에서 실행
+          leftButtonStyle(false);
+          timeCheck();
           console.log(`Current image is ${greatNumber.value}`);
+          greatFlip.playSound();
         });
       });
-
     });
 
-    const handleQuitButtonClick = () => {
-      console.log('quit 버튼이 클릭되었습니다.');
+    onUnmounted(() => {
+      greatFlip.clearSound();
+    });
+
+    const quitButtonClick = () => {
       if (typeof window.Unity !== "undefined") {
         window.Unity.call("eBook");
       }
@@ -59,26 +68,109 @@ export default defineComponent({
       }
     };
 
-    const handleLeftButtonClick = (flipbook: any) => {
-      flipbook.flipLeft();
+    const leftButtonClick = (flipbook: any) => {
+      if (!flipping) {
+        flipbook.flipLeft();
+      }
     };
 
-    const handleRightButtonClick = (flipbook: any) => {
-      flipbook.flipRight();
+    const rightButtonClick = (flipbook: any) => {
+      if (!flipping) {
+        flipbook.flipRight();
+      }
     };
+
+    const autoPaging = (flipbook: any) => {
+      if (!flipping) {
+        auto = true;
+        flipbook.flipRight();
+      }
+    }
 
     const updatePage = (newPage: number) => {
       greatNumber.value = Math.floor(newPage / 2 + 1);
       console.log(`Current image is ${greatNumber.value}`);
+
+      const lastImageNumber = greatFlip.sync.length + 1;
+
+      if (greatNumber.value <= 1) {
+        leftButtonStyle(false);
+      } else if (greatNumber.value < lastImageNumber) {
+        leftButtonStyle(true);
+        rightButtonStyle(true);
+      } else {
+        rightButtonStyle(false);
+      }
+
+      if (auto) {
+        auto = false;
+      } else {
+        greatFlip.moveSound(greatNumber.value - 1);
+      }
     };
+
+    const timeCheck = () => {
+      if (greatFlip.audio) {
+        greatFlip.audio.addEventListener('timeupdate', () => {
+          currentTime.value = greatFlip.audio ? greatFlip.audio.currentTime : 0;
+          const time = currentTime.value;
+          const number = greatNumber.value;
+          if (time > greatFlip.sync[number] - flipDuration / 1000 && !flipping) {
+            autoPaging(flipbookRef.value);
+          }
+        });
+      }
+    }
+
+    const leftButtonStyle = (display: boolean) => {
+      const leftButton = document.getElementById('left');
+      if (leftButton != null) {
+        if (display) {
+          leftButton.style.display = 'block';
+        } else {
+          leftButton.style.display = 'none';
+        }
+      }
+    }
+
+    const rightButtonStyle = (display: boolean) => {
+      const rightButton = document.getElementById('right');
+      if (rightButton != null) {
+        if (display) {
+          rightButton.style.display = 'block';
+        } else {
+          rightButton.style.display = 'none';
+        }
+      }
+    }
+
+    const flipStart = () => {
+      flipping = true;
+    }
+
+    const flipMove = () => {
+      if (flipping) {
+        console.log("책 넘기는 중");
+      }
+    }
+
+    const flipEnd = () => {
+      flipping = false;
+        console.log("다 넘김");
+    }
 
     return {
       greatFlip,
       isGreatFlipLoaded,
-      handleQuitButtonClick,
-      handleLeftButtonClick,
-      handleRightButtonClick,
-      updatePage
+      quitButtonClick,
+      leftButtonClick,
+      rightButtonClick,
+      updatePage,
+      flipbookRef,
+      flipDuration,
+      flipStart,
+      flipMove,
+      flipEnd
     };
   },
 });
