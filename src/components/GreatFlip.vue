@@ -1,7 +1,7 @@
 <template>
   <div class="great-flip">
     <Flipbook v-if="isGreatFlipLoaded" class="flipbook" :pages="greatFlip.getPages()" :flip-duration="flipDuration"
-      :gloss="0" :ambient="1" :clickToZoom="false" v-slot="flipbook" ref="flipbookRef"
+      :gloss="0" :perspective="6500" :nPolygons="10" :clickToZoom="false" v-slot="flipbook" ref="flipbookRef"
       @mousedown.prevent.stop.capture="flipStart" @mousemove.prevent.stop.capture="flipMove"
       @mouseup.prevent.stop.capture="flipEnd" @touchstart.prevent.stop.capture="flipStart"
       @touchmove.prevent.stop.capture="flipMove" @touchend.prevent.stop.capture="flipEnd"
@@ -37,7 +37,7 @@ export default defineComponent({
     const greatNumber = ref(1);
     const currentTime = ref(0);
     const flipbookRef = ref(null);
-    const flipDuration = 1000;
+    const flipDuration = 500;
 
     let auto = false;
     let flipping = false;
