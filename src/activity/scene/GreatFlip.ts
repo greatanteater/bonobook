@@ -27,17 +27,24 @@ export default class GreatFlip {
   }
 
   public setDate() {
-    const startDate = new Date(2023, 8, 27);
+    const startDate = new Date(2023, (8) - 1, 22);
     const today = new Date();
-    const msPerDay = 24 * 60 * 60 *1000;
+    const msPerDay = 24 * 60 * 60 * 1000;
     const daysSince = Math.floor((today.getTime() - startDate.getTime()) / msPerDay) + 1;
+    const booksCount = 1;
 
-    if (daysSince <= 1) {
-      this.bookNumber = 1;
-    } else {
-      // this.bookNumber = daysSince;
-      this.bookNumber = 1;
+    this.bookNumber = daysSince % booksCount;
+    if (this.bookNumber == 0) {
+      this.bookNumber = booksCount
     }
+
+    // if (daysSince <= 1) {
+    //   this.bookNumber = 1;
+    // } else if(daysSince > booksCount) {
+    //   this.bookNumber = booksCount;
+    // } else {
+    //   this.bookNumber = daysSince;
+    // }
 
     this.currentDate = {
       year: today.getFullYear(),
@@ -46,7 +53,7 @@ export default class GreatFlip {
     }
     console.log(`오늘 날짜: ${this.currentDate.year}년 ${this.currentDate.month}월 ${this.currentDate.day}일`);
     console.log(`"경과일: ${daysSince}"`);
-    console.log(`"book ${daysSince}"`);
+    console.log(`"book ${this.bookNumber}"`);
   }
 
   public async init() {
