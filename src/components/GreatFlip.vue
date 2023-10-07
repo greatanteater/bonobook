@@ -300,8 +300,8 @@ const stopObserving = () => {
 <style>
 .great-flip {
   position: absolute;
-  width: 1300px;
-  height: 812px;
+  width: 100%;
+  height: 100%;
   left: 0px;
   top: 0px;
 }
